@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup as Bs
 
 LIMIT = 25  # maximum number of results per page. values can be either 25,50,100 only
 
-
 class BookSearch:
     # list of default values , if not parameters value are not provided
     baseUrl = "http://libgen.rs/search.php"
@@ -53,11 +52,12 @@ class BookSearch:
         langs = [lang.text for lang in allLanguage]
         types = [ext.text for ext in allType]
         images = ["http://libgen.rs" + img['src'] for img in allImage]
-        prelinks = [link['href'].split("=")[1] for link in allPreLink]
+        # 2 if LIMIT == 100 else 1 # get if LIMIT=100->2 or 1
+        prelinks = [link['href'].split("=")[2 if LIMIT == 100 else 1] for link in allPreLink]
         pagesCount = [pc.text for pc in allPagesCount]
         sizes = [self.sizeSplit(siz) for siz in allSize]
         publishers = [pub.text for pub in allPublisher]
-        totalFileCount = len(titles) if totalFileCount<=25 else totalFileCount
+        totalFileCount = len(titles) if totalFileCount<=LIMIT else totalFileCount
         # JSON array containing all the resultant books
         allBooks = []
          # result as a Dictionary
@@ -84,7 +84,7 @@ class BookSearch:
     def totalCompute(self, total):
         totMax = LIMIT if total // LIMIT >= LIMIT else total // LIMIT
         if not total % LIMIT == 0:
-            print(totMax)
+            # print(totMax)
             return total, totMax + 1
         else:
             return total, totMax
